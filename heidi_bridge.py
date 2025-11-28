@@ -32,17 +32,19 @@ for message in st.session_state.messages:
     else:
         st.markdown(f"<div class='stChatMessage heidi'><strong>Heidi:</strong> {message['content']}</div>", unsafe_allow_html=True)
 
-# Input box
+# Input box – bulletproof version with forced re-runs
 if prompt := st.chat_input("Ask Heidi Anything…"):
-    # Add user message
+    # Add user message immediately
     st.session_state.messages.append({"role": "user", "content": prompt})
-    st.rerun()
-
-    # ——— THIS IS WHERE THE MAGIC WILL START ———
-    # (We will fill this in the next steps)
-    if "pull full record" in prompt.lower():
+    st.rerun()  # Force immediate update to show user message
+    
+    # Process command (case-insensitive)
+    lower_prompt = prompt.lower().strip()
+    if "pull full record" in lower_prompt:
         st.session_state.messages.append({"role": "heidi", "content": "Fetching full record from the EMR… please wait 15 seconds"})
-        st.rerun()
-    elif "give patient qr" in prompt.lower():
-        st.session_state.messages.append({"role": "heidi", "content": "Creating your patient’s forever health folder…\n\n[Big QR will appear here in Step 7]"})
-        st.rerun()
+    elif "give patient qr" in lower_prompt:
+        st.session_state.messages.append({"role": "heidi", "content": "Creating your patient's forever health folder…\n\n[Big QR will appear here in Step 7]"})
+    else:
+        st.session_state.messages.append({"role": "heidi", "content": "I didn't understand that. Try: `pull full record` or `give patient qr`"})
+    
+    st.rerun()  # Force second re-run to show Heidi's reply
